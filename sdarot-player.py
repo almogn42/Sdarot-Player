@@ -21,8 +21,8 @@ def ShowSearch(search_string):
         r = requests.get(rf"https://sdarot.tv/search?term={search_string}")
     except requests.exceptions.SSLError:
         print("enterd requests.exceptions.SSLError")
-        if "search" not in str(sys.exc_info):
-            return str(sys.exc_info()[1]).split("/")[2].split("-")[0]
+        if "search" not in str(exc_info()):
+            return str(exc_info()[1]).split("/")[2].split("-")[0]
         else:
             print("There are Not Result Found")
             print("Have A GOOD DAY SIR!! \n\n")
