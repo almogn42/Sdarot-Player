@@ -5,10 +5,12 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 #rest of the module import
 from re import compile as RegCompile
-from bs4 import BeautifulSoup
+#type ignore comments is for mt[py] so he wont scream at me just becouse i dident written a scrub file for this library
+from bs4 import BeautifulSoup # type: ignore
 from sys import exc_info,argv
 from os import getcwd,popen
-import requests
+#type ignore comments is for mt[py] so he wont scream at me just becouse i dident written a scrub file for this library
+import requests # type: ignore
 import time
 
 #Function Declaration Part
