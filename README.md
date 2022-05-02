@@ -1,4 +1,4 @@
-# Lazy-Sdarot
+# Sdarot-Player
 client for Sdarot Website
 
 
