@@ -173,31 +173,35 @@ def EpSe_Selector (ShowID,Mode,Season = None):
         try:
             Season_Episode_Select = input(f"Select {List_Type} [1 - {len(Search_Results)}] \n")
 
-            #cleaning and validating the input Data
-            if "-" in Season_Episode_Select:
-                #splitiing to list
-                Season_Episode_Select = Season_Episode_Select.split("-")
-                #range input validator
-                if len(Season_Episode_Select) > 2:
-                    print("Enter only 1 Range (Only 1 '-')")
-                    continue
+            if Mode == "ep":
+                #cleaning and validating the input Data
+                if "-" in Season_Episode_Select:
+                    #splitiing to list
+                    Season_Episode_Select = Season_Episode_Select.split("-")
+                    #range input validator
+                    if len(Season_Episode_Select) > 2:
+                        print("Enter only 1 Range (Only 1 '-')")
+                        continue
 
-                for Num in range(len(Season_Episode_Select)):
+                    for Num in range(len(Season_Episode_Select)):
+                        #validating type and converting\ cleanig the list object to int (for Clean output)
+                        int(Season_Episode_Select[Num])
+                        Season_Episode_Select[Num] = int(Season_Episode_Select[Num])
+
+                else:
                     #validating type and converting\ cleanig the list object to int (for Clean output)
-                    int(Season_Episode_Select[Num])
-                    Season_Episode_Select[Num] = int(Season_Episode_Select[Num])
+                    int(Season_Episode_Select)
+                    Season_Episode_Select = list(Season_Episode_Select)
+                    Season_Episode_Select[0] = int(Season_Episode_Select[0])
 
-            else:
-                #validating type and converting\ cleanig the list object to int (for Clean output)
+            elif Mode == "se":
                 int(Season_Episode_Select)
-                Season_Episode_Select = list(Season_Episode_Select)
-                Season_Episode_Select[0] = int(Season_Episode_Select[0])
+                Season_Episode_Select = int(Season_Episode_Select)
 
             break
         except ValueError:
             print("Enter Numbers Only !!!")
     return Season_Episode_Select
-
 
 
 def MPV_Player_Play(Configuration_File, url ):
@@ -289,15 +293,15 @@ elif Lines[0].strip() != "Use MPV = True":
 #WebDriver Status
 WebDriverStatus = "Closed"
 
-# #Getting the Show Season Episode Details
-# Search_String = input(" Please Enter Show's Name \n")
-# Show = ShowSearch(Search_String)
-# Season = EpSe_Selector(Show,"Se")
-# Episode =EpSe_Selector(Show,"Ep",Season)
-# print("Opening Episode")
-Show  = 1
-Season = 2
-Episode = [1]
+#Getting the Show Season Episode Details
+Search_String = input(" Please Enter Show's Name \n")
+Show = ShowSearch(Search_String)
+Season = EpSe_Selector(Show,"Se")
+Episode =EpSe_Selector(Show,"Ep",Season)
+print("Opening Episode")
+# Show  = 1
+# Season = 2
+# Episode = [1]
 
 
 while True:
