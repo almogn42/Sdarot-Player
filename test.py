@@ -15,6 +15,59 @@ import requests # type: ignore
 import time
 
 #Function Declaration Part
+def Argument_Parser(arguments):
+    """Function for Argument parsing all the parsing is made inside the function pass only the argument list \n\t Usage: Argument_Parser(Arguments)"""
+
+    if len(arguments) > 1:
+
+        #argument is config
+        if arguments[1].lower() == "--config":
+
+            #configuring if mpv is wanted
+            print("This is importenet Follow the instruction because if not the program wont work ")
+            Use_MPV =  input("please enter if you want to Use MPV [True | False] : ")
+
+            #further confugartions if mpv is wanted
+            if Use_MPV.lower() == "true":
+                Use_MPV = "True"
+                MPV_Path = input(r"Please enter MPV Folder FULL PATH (Exemple: C:\Users\Moshe\Downloads\mpv) : ")
+                Cookies_File_Location = input(r"Please enter Wanted Cookies Folder FULL PATH (Exemple: C:\Users\Moshe\Downloads\mpv\Cookies) if you want in the script folder klick Enter ")
+
+                if Cookies_File_Location == "":
+                    Cookies_File_Location = getcwd()
+
+                Linux_Windows = input("Please enter your os [Win | Lin] (Mac is Linux for this script) : ")
+
+                if Linux_Windows.lower() == "win":
+                    MPV_Path = MPV_Path + "\\"
+                    Cookies_File_Location = Cookies_File_Location + "\\"
+
+                elif Linux_Windows.lower() == "lin":
+                    MPV_Path = MPV_Path + r"/"
+                    Cookies_File_Location = Cookies_File_Location + r"/"
+
+                print("Creating Config File" )
+
+                #Writing all the configurations decided erlier
+                Conf_File = open("Sdarot-Player.conf", "w")
+                Conf_File.write(f"Use MPV = {Use_MPV}\n")
+                Conf_File.write(f"MPV Path = '{MPV_Path}mpv'\n")
+                Conf_File.write(f"Cookies Path = '{Cookies_File_Location}Sdarot-Player.cookie'\n")
+                Conf_File.close()
+                print("Config File Created Have a good day")
+                quit()
+
+            elif Use_MPV.lower() != "true":
+                #setting MPV state
+                Use_MPV = "False"
+
+                #Writing configurations
+                Conf_File = open("Sdarot-Player.conf", "w")
+                Conf_File.write(f"Use MPV = {Use_MPV}\n")
+                Conf_File.close()
+                print("Config File Created Have a good day")
+                quit()
+
 
 def ShowSearch(search_string):
     """Search logic for searching shows usage ShowSearch("<Show Name>") return's only the Show ID(int)"""
@@ -78,7 +131,6 @@ def ShowSearch(search_string):
         quit()
 
 
-
 def EpSe_Selector (ShowID,Mode,Season = None):
     """Search logic for selecting dinamecly Episode / Season usage EpSe_Selector(<ShowID>,<Mode [Se | Ep], Season (Neede Only with Episode Selection (Mode = Ep) Default = None)> return's only the Number"""
 #managing argumet selection Mode and Argument value and Raising an error if not correct
@@ -98,7 +150,7 @@ def EpSe_Selector (ShowID,Mode,Season = None):
             Season_Type_Error = ValueError(f" if Mode = {Mode}, Season HAVE to be a NUMBER !!!")
             raise Season_Type_Error
 
-#selecring Season
+#selecring Season \ Episode
     #managing selection and variables depending on mode
     if Mode == "se":
         r = requests.get(rf"https://sdarot.tv/watch/{ShowID}")
@@ -119,7 +171,28 @@ def EpSe_Selector (ShowID,Mode,Season = None):
 
     while True:
         try:
-            Season_Episode_Select = int(input(f"Select {List_Type} [0 - {len(Search_Results)}] \n"))
+            Season_Episode_Select = input(f"Select {List_Type} [1 - {len(Search_Results)}] \n")
+
+            #cleaning and validating the input Data
+            if "-" in Season_Episode_Select:
+                #splitiing to list
+                Season_Episode_Select = Season_Episode_Select.split("-")
+                #range input validator
+                if len(Season_Episode_Select) > 2:
+                    print("Enter only 1 Range (Only 1 '-')")
+                    continue
+
+                for Num in range(len(Season_Episode_Select)):
+                    #validating type and converting\ cleanig the list object to int (for Clean output)
+                    int(Season_Episode_Select[Num])
+                    Season_Episode_Select[Num] = int(Season_Episode_Select[Num])
+
+            else:
+                #validating type and converting\ cleanig the list object to int (for Clean output)
+                int(Season_Episode_Select)
+                Season_Episode_Select = list(Season_Episode_Select)
+                Season_Episode_Select[0] = int(Season_Episode_Select[0])
+
             break
         except ValueError:
             print("Enter Numbers Only !!!")
@@ -134,8 +207,6 @@ def MPV_Player_Play(Configuration_File, url ):
     MPV_Player = Configuration_File[1].split(r"'")[1]
     #Reading cookies from site for video authontication
     Cookies = driver.get_cookie("Sdarot")
-    #Clowsing driver browser
-    driver.quit()
     #Filling blanks and Formating for writing
     Cookies_at_date = 0
     Cookies_Contain_SubDomains = "True"
@@ -151,42 +222,52 @@ def MPV_Player_Play(Configuration_File, url ):
     print(Player_Runner.read())
 
 
+def After_Played_Options(episode, show, season):
+    """Function for desplaying and adding\selecting episode after the video played \n\t Usage: After_Played_Options(Episode <int>, Show <int>, Season <int>) """
+#While loop for repeting if input is not correct
+    while True:
+            print("Please Enter Selection \n\n\n")
+            print("[n] Next Episode")
+            print("[p] Previos Episode")
+            print("[s] Select Episode From Season")
+            print("[q] Quit")
+
+            After_Play_Selector = input()
+
+            if (After_Play_Selector.lower() == "s") or (After_Play_Selector.lower() == "p") or (After_Play_Selector.lower() == "n") or (After_Play_Selector.lower() == "q"):
+
+                if After_Play_Selector.lower() == "n":
+                    episode += 1
+                    print(episode)
+                    return [episode]
+
+                elif After_Play_Selector.lower() == "p":
+                    if episode > 1 :
+                        episode -= 1
+                        return [episode]
+                    else:
+                        print("current Episode is 1 there is no Episode prior to it")
+                        print("Belive me!!")
+                        continue
+
+                elif After_Play_Selector.lower() == "s":
+                    episode =  EpSe_Selector(show,"Ep",season)
+                    return episode
+                elif After_Play_Selector.lower() == "q":
+                    print("\t\t Have a nice day :-)")
+                    driver.quit()
+                    quit()
+
+            else:
+                continue
+
+
 
 #Configuration Setup & Creating needed Files
 
 Arguments = argv
-
-if len(Arguments) > 1:
-    if Arguments[1].lower() == "--config":
-        print("This is importenet Follow the instruction because if not the program wont work ")
-        Use_MPV =  input("please enter if you want to Use MPV [True | False] : ")
-        if Use_MPV.lower() == "true":
-            Use_MPV = "True"
-            MPV_Path = input(r"Please enter MPV Folder FULL PATH (Exemple: C:\Users\Moshe\Downloads\mpv) : ")
-            Cookies_File_Location = input(r"Please enter Wanted Cookies Folder FULL PATH (Exemple: C:\Users\Moshe\Downloads\mpv\Cookies) if you want in the script folder klick Enter ")
-            if Cookies_File_Location == "":
-                Cookies_File_Location = getcwd()
-            Linux_Windows = input("Please enter your os [Win | Lin] (Mac is Linux for this script) : ")
-
-            if Linux_Windows.lower() == "win":
-                MPV_Path = MPV_Path + "\\"
-                Cookies_File_Location = Cookies_File_Location + "\\"
-            elif Linux_Windows.lower() == "lin":
-                MPV_Path = MPV_Path + r"/"
-                Cookies_File_Location = Cookies_File_Location + r"/"
-
-            print("Creating Config File" )
-
-            Conf_File = open("Sdarot-Player.conf", "w")
-            Conf_File.write(f"Use MPV = {Use_MPV}\n")
-            Conf_File.write(f"MPV Path = '{MPV_Path}mpv'\n")
-            Conf_File.write(f"Cookies Path = '{Cookies_File_Location}Sdarot-Player.cookie'\n")
-            Conf_File.close()
-            print("Config File Created Have a good day")
-            quit()
-        elif Use_MPV.lower() != "true":
-            print("there is nothing to configer than \n      ---exiting---")
-            quit()
+#parsing script arguments
+Argument_Parser(Arguments)
 
 try:
     #reading Conf File For Path's
@@ -216,103 +297,119 @@ WebDriverStatus = "Closed"
 # print("Opening Episode")
 Show  = 1
 Season = 2
-Episode = 1
+Episode = [1]
 
 
 while True:
-    #Making the Complete Url
-    Url = f"https://sdarot.tv/watch/{Show}/season/{Season}/episode/{Episode}"
-
-    #Running selenium driver to open timer for Episode
-        #this is for not restarting the web druver in every loop run
-    if WebDriverStatus == "Closed":
-        driver = webdriver.Firefox(options  = fireFoxOptions)
-        WebDriverStatus = "Opened"
-
-    driver.get(Url)
-
-    #Making sure Were in the right page and opened
-    assert "Sdarot.TV" in driver.title
-
-
-    #Getting Episode content
-    print(f"Playing Episode {Episode}")
-    try:
-        print("Waiting For Site Timer (30 Secounds)")
-        element = WebDriverWait(driver, 40).until(
-            EC.presence_of_element_located((By.ID, "videojs_html5_api"))
-
-        )
-        element = driver.find_element(By.ID,"videojs_html5_api")
-        Url = element.get_attribute("src")
-        print(Url)
-
-
-        #chacking if play methood configured is MPV
-        if Lines[0].strip() == "Use MPV = True":
-            MPV_Player_Play(Lines,Url)
-            #updating WebDriver Status
-            WebDriverStatus = "Closed"
-
-            #managing logic for after the epishode is played
-            while True:
-                    print("Please Enter Selection \n\n\n")
-                    print("[n] Next Episode")
-                    print("[p] Previos Episode")
-                    print("[s] Select Episode From Season")
-                    print("[q] Quit")
-                    After_Play_Selector = input()
-
-                    if (After_Play_Selector.lower() == "s") or (After_Play_Selector.lower() == "p") or (After_Play_Selector.lower() == "n") or (After_Play_Selector.lower() == "q"):
-                        if After_Play_Selector.lower() == "n":
-                            Episode += 1
-                            print(Episode)
-                        elif After_Play_Selector.lower() == "p":
-                            Episode -= 1
-                        elif After_Play_Selector.lower() == "s":
-                            Episode =  EpSe_Selector(Show,"Ep",Season)
-                        elif After_Play_Selector.lower() == "q":
-                            print("\t\t Have a nice day :-)")
-                            quit()
-                        break
-                    else:
-                        continue
-
-
-        elif Lines[0].strip() != "Use MPV = True":
+#there is if statment for the range option that need to repeat the whole sequence per episode in sequence
+    #if there is no range run once
+    if len(Episode) == 1:
+        while True:
+            #Making the Complete Url
+            Url = f"https://sdarot.tv/watch/{Show}/season/{Season}/episode/{Episode[0]}"
+            #Running selenium driver to open timer for Episode
+                #this is for not restarting the web druver in every loop run
+            if WebDriverStatus == "Closed":
+                print("opening browser")
+                driver = webdriver.Firefox(options  = fireFoxOptions)
+                WebDriverStatus = "Opened"
+            print("opening url")
             driver.get(Url)
-            #managing logic for after the epishode is played
+
+            #Making sure Were in the right page and opened
+            assert "Sdarot.TV" in driver.title
+
+
+            #Getting Episode content
+            print(f"Playing Episode {Episode[0]}")
+            try:
+                print("Waiting For Site Timer (30 Secounds)")
+                element = WebDriverWait(driver, 50).until(
+                    EC.presence_of_element_located((By.ID, "videojs_html5_api"))
+
+                )
+                element = driver.find_element(By.ID,"videojs_html5_api")
+                Url = element.get_attribute("src")
+                print(Url)
+
+
+                #chacking if play methood configured is MPV
+                if Lines[0].strip() == "Use MPV = True":
+                    MPV_Player_Play(Lines,Url)
+                    #updating WebDriver Status
+
+
+                    #managing logic for after the epishode is played
+                    Episode = After_Played_Options(Episode[0], Show, Season)
+                    break
+
+
+                elif Lines[0].strip() != "Use MPV = True":
+                    driver.get(Url)
+                    #managing logic for after the epishode is played
+                    Episode = After_Played_Options(Episode[0], Show, Season)
+                    break
+
+        #exception for when servers is full (Error 2 )
+            except selenium.common.exceptions.TimeoutException:
+                print("The servers were full refreshing for a retry")
+                driver.quit()
+                WebDriverStatus = "Closed"
+                continue
+
+    #for when there is range you need to repeat the episode opening sequendce for each episode in sequence
+    elif len(Episode) == 2:
+        for Ep in range(Episode[0], (Episode[1] + 1)):
             while True:
-                    print("Please Enter Selection \n\n\n")
-                    print("[n] Next Episode")
-                    print("[p] Previos Episode")
-                    print("[s] Select Episode From Season")
-                    print("[q] Quit")
-                    After_Play_Selector = input()
 
-                    if (After_Play_Selector.lower() == "s") or (After_Play_Selector.lower() == "p") or (After_Play_Selector.lower() == "n") or (After_Play_Selector.lower() == "q"):
-                        if After_Play_Selector.lower() == "n":
-                            Episode += 1
-                            print(Episode)
+                #Making the Complete Url
+                Url = f"https://sdarot.tv/watch/{Show}/season/{Season}/episode/{Ep}"
+                #Running selenium driver to open timer for Episode
+                    #this is for not restarting the web druver in every loop run
+                if WebDriverStatus == "Closed":
+                    print("opening browser")
+                    driver = webdriver.Firefox(options  = fireFoxOptions)
+                    WebDriverStatus = "Opened"
+                print("opening url")
+                driver.get(Url)
 
-                        elif After_Play_Selector.lower() == "p":
-                            Episode -= 1
+                #Making sure Were in the right page and opened
+                assert "Sdarot.TV" in driver.title
 
-                        elif After_Play_Selector.lower() == "s":
-                            Episode =  EpSe_Selector(Show,"Ep",Season)
 
-                        elif After_Play_Selector.lower() == "q":
-                            print("\t\t Have a nice day :-)")
-                            driver.quit()
-                            quit()
+                #Getting Episode content
+                print(f"Playing Episode {Ep}")
+                try:
+                    print("Waiting For Site Timer (30 Secounds)")
+                    element = WebDriverWait(driver, 50).until(
+                        EC.presence_of_element_located((By.ID, "videojs_html5_api"))
 
+                    )
+                    element = driver.find_element(By.ID,"videojs_html5_api")
+                    Url = element.get_attribute("src")
+                    print(Url)
+
+
+                    #chacking if play methood configured is MPV
+                    if Lines[0].strip() == "Use MPV = True":
+                        MPV_Player_Play(Lines,Url)
+                        #updating WebDriver Status
+
+                        print("Opening next Episode")
                         break
-                    else:
-                        continue
 
 
-#exception for when servers is full (Error 2 )
-    except selenium.common.exceptions.TimeoutException:
-        print("The servers were full refreshing for a retry")
-        driver.quit()
-        break
+                    elif Lines[0].strip() != "Use MPV = True":
+                        driver.get(Url)
+                        input("Press Enter When Episode end \ you want to Move to next episode in range ")
+                        print("Opening next Episode")
+                        break
+
+            #exception for when servers is full (Error 2 )
+                except selenium.common.exceptions.TimeoutException:
+                    print("The servers were full refreshing for a retry")
+                    driver.quit()
+                    WebDriverStatus = "Closed"
+                    continue
+
+        Episode = After_Played_Options(Ep, Show, Season)
