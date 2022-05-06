@@ -3,6 +3,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium import webdriver
+import selenium.common.exceptions
 #rest of the module import
 from re import compile as RegCompile
 #type ignore comments is for mt[py] so he wont scream at me just becouse i dident written a scrub file for this library
@@ -78,11 +79,6 @@ def ShowSearch(search_string):
 
 
 
-
-
-
-
-
 def EpSe_Selector (ShowID,Mode,Season = None):
     """Search logic for selecting dinamecly Episode / Season usage EpSe_Selector(<ShowID>,<Mode [Se | Ep], Season (Neede Only with Episode Selection (Mode = Ep) Default = None)> return's only the Number"""
 #managing argumet selection Mode and Argument value and Raising an error if not correct
@@ -155,6 +151,7 @@ def MPV_Player_Play(Configuration_File, url ):
     print(Player_Runner.read())
 
 
+
 #Configuration Setup & Creating needed Files
 
 Arguments = argv
@@ -191,7 +188,25 @@ if len(Arguments) > 1:
             print("there is nothing to configer than \n      ---exiting---")
             quit()
 
+try:
+    #reading Conf File For Path's
+    File = open("Sdarot-Player.conf","r")
+    Lines = File.readlines()
+    File.close()
+except:
+    print("\t it Seemed there is not a configuration file in this folder \n\t Please run the Program again with --config For the Configuration setup")
+    quit()
 
+#Configuring headless for WebDriver
+if Lines[0].strip() == "Use MPV = True":
+    fireFoxOptions = webdriver.FirefoxOptions()
+    fireFoxOptions.headless = True
+
+elif Lines[0].strip() != "Use MPV = True":
+    fireFoxOptions = webdriver.FirefoxOptions()
+
+#WebDriver Status
+WebDriverStatus = "Closed"
 
 # #Getting the Show Season Episode Details
 # Search_String = input(" Please Enter Show's Name \n")
@@ -203,40 +218,101 @@ Show  = 1
 Season = 2
 Episode = 1
 
-#Making the Complete Url
-Url = f"https://sdarot.tv/watch/{Show}/season/{Season}/episode/{Episode}"
 
-#Running selenium driver to open timer for Episode
-driver = webdriver.Firefox()
-driver.get(Url)
-
-#Making sure Were in the right page and opened
-assert "Sdarot.TV" in driver.title
 while True:
+    #Making the Complete Url
+    Url = f"https://sdarot.tv/watch/{Show}/season/{Season}/episode/{Episode}"
+
+    #Running selenium driver to open timer for Episode
+        #this is for not restarting the web druver in every loop run
+    if WebDriverStatus == "Closed":
+        driver = webdriver.Firefox(options  = fireFoxOptions)
+        WebDriverStatus = "Opened"
+
+    driver.get(Url)
+
+    #Making sure Were in the right page and opened
+    assert "Sdarot.TV" in driver.title
+
+
     #Getting Episode content
+    print(f"Playing Episode {Episode}")
     try:
+        print("Waiting For Site Timer (30 Secounds)")
         element = WebDriverWait(driver, 40).until(
             EC.presence_of_element_located((By.ID, "videojs_html5_api"))
+
         )
         element = driver.find_element(By.ID,"videojs_html5_api")
         Url = element.get_attribute("src")
         print(Url)
 
-        #reading Conf File For Path's
-        File = open("Sdarot-Player.conf","r")
-        Lines = File.readlines()
-        File.close()
 
         #chacking if play methood configured is MPV
         if Lines[0].strip() == "Use MPV = True":
             MPV_Player_Play(Lines,Url)
+            #updating WebDriver Status
+            WebDriverStatus = "Closed"
+
+            #managing logic for after the epishode is played
+            while True:
+                    print("Please Enter Selection \n\n\n")
+                    print("[n] Next Episode")
+                    print("[p] Previos Episode")
+                    print("[s] Select Episode From Season")
+                    print("[q] Quit")
+                    After_Play_Selector = input()
+
+                    if (After_Play_Selector.lower() == "s") or (After_Play_Selector.lower() == "p") or (After_Play_Selector.lower() == "n") or (After_Play_Selector.lower() == "q"):
+                        if After_Play_Selector.lower() == "n":
+                            Episode += 1
+                            print(Episode)
+                        elif After_Play_Selector.lower() == "p":
+                            Episode -= 1
+                        elif After_Play_Selector.lower() == "s":
+                            Episode =  EpSe_Selector(Show,"Ep",Season)
+                        elif After_Play_Selector.lower() == "q":
+                            print("\t\t Have a nice day :-)")
+                            quit()
+                        break
+                    else:
+                        continue
+
 
         elif Lines[0].strip() != "Use MPV = True":
             driver.get(Url)
-            input("click when ended")
-            driver.quit()
-            break
+            #managing logic for after the epishode is played
+            while True:
+                    print("Please Enter Selection \n\n\n")
+                    print("[n] Next Episode")
+                    print("[p] Previos Episode")
+                    print("[s] Select Episode From Season")
+                    print("[q] Quit")
+                    After_Play_Selector = input()
 
-    except:
+                    if (After_Play_Selector.lower() == "s") or (After_Play_Selector.lower() == "p") or (After_Play_Selector.lower() == "n") or (After_Play_Selector.lower() == "q"):
+                        if After_Play_Selector.lower() == "n":
+                            Episode += 1
+                            print(Episode)
+
+                        elif After_Play_Selector.lower() == "p":
+                            Episode -= 1
+
+                        elif After_Play_Selector.lower() == "s":
+                            Episode =  EpSe_Selector(Show,"Ep",Season)
+
+                        elif After_Play_Selector.lower() == "q":
+                            print("\t\t Have a nice day :-)")
+                            driver.quit()
+                            quit()
+
+                        break
+                    else:
+                        continue
+
+
+#exception for when servers is full (Error 2 )
+    except selenium.common.exceptions.TimeoutException:
+        print("The servers were full refreshing for a retry")
         driver.quit()
         break
