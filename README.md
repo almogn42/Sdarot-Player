@@ -29,7 +29,7 @@ python -m pip install selenium
 ```
 #### Selenium Driver install
 
-1.  Go To the link below and download depending on your os
+1.  Go To the link below and download the FireFox Driver depending on your os
 2. Extract and than Either
   - Add to your Computer PATH (in linux $PATH | in Windows Enviromental Variable)
   - Or Place where you want and Specify in the Configuration Setup
