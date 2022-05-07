@@ -2,15 +2,16 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.service import Service
 from selenium import webdriver
 import selenium.common.exceptions
 #rest of the module import
 from re import compile as RegCompile
-#type ignore comments is for mt[py] so he wont scream at me just becouse i dident written a scrub file for this library
+#type ignore comments is for my[py] so he wont scream at me just becouse i dident written a scrub file for this library
 from bs4 import BeautifulSoup # type: ignore
 from sys import exc_info,argv
 from os import getcwd,popen
-#type ignore comments is for mt[py] so he wont scream at me just becouse i dident written a scrub file for this library
+#type ignore comments is for my[py] so he wont scream at me just becouse i dident written a scrub file for this library
 import requests # type: ignore
 import time
 
@@ -26,25 +27,36 @@ def Argument_Parser(arguments):
             #configuring if mpv is wanted
             print("This is importenet Follow the instruction because if not the program wont work ")
             Use_MPV =  input("please enter if you want to Use MPV [True | False] : ")
+            Driver_Path = input("\nPlease Enter Selenium Driver Folder FULL PATH (Exemple: C:\\Users\\Moshe\\Downloads\\mpv) \n\tif the Driver is in PATH (Windows: enviromental variables path) Than Press Enter :\n")
+            #checking for Driver
+            if Driver_Path.strip() == "":
+                Driver_Path = "False"
 
             #further confugartions if mpv is wanted
             if Use_MPV.lower() == "true":
                 Use_MPV = "True"
                 MPV_Path = input(r"Please enter MPV Folder FULL PATH (Exemple: C:\Users\Moshe\Downloads\mpv) : ")
-                Cookies_File_Location = input(r"Please enter Wanted Cookies Folder FULL PATH (Exemple: C:\Users\Moshe\Downloads\mpv\Cookies) if you want in the script folder klick Enter ")
+                Cookies_File_Location = input(r"Please enter Wanted Cookies Folder FULL PATH (Exemple: C:\Users\Moshe\Downloads\mpv\Cookies) if you want in the script folder Press Enter ")
+
 
                 if Cookies_File_Location == "":
                     Cookies_File_Location = getcwd()
+
+
 
                 Linux_Windows = input("Please enter your os [Win | Lin] (Mac is Linux for this script) : ")
 
                 if Linux_Windows.lower() == "win":
                     MPV_Path = MPV_Path + "\\"
                     Cookies_File_Location = Cookies_File_Location + "\\"
+                    if Driver_Path != "False":
+                        Driver_Path = Driver_Path + "\\" + "geckodriver.exe"
 
                 elif Linux_Windows.lower() == "lin":
                     MPV_Path = MPV_Path + r"/"
                     Cookies_File_Location = Cookies_File_Location + r"/"
+                    if Driver_Path != "False":
+                        Driver_Path = Driver_Path + r"/" + "geckodriver"
 
                 print("Creating Config File" )
 
@@ -53,6 +65,7 @@ def Argument_Parser(arguments):
                 Conf_File.write(f"Use MPV = {Use_MPV}\n")
                 Conf_File.write(f"MPV Path = '{MPV_Path}mpv'\n")
                 Conf_File.write(f"Cookies Path = '{Cookies_File_Location}Sdarot-Player.cookie'\n")
+                Conf_File.write(f"Driver Path = '{Driver_Path}'\n")
                 Conf_File.close()
                 print("Config File Created Have a good day")
                 quit()
@@ -60,10 +73,22 @@ def Argument_Parser(arguments):
             elif Use_MPV.lower() != "true":
                 #setting MPV state
                 Use_MPV = "False"
+                MPV_Path = "False"
+                Cookies_File_Location = "False"
+                Linux_Windows = input("Please enter your os [Win | Lin] (Mac is Linux for this script) : ")
+                #Getting Path right Depend on OS
+                if (Linux_Windows.lower() == "win") and (Driver_Path != "False"):
+                    Driver_Path = Driver_Path + "\\" + "geckodriver.exe"
+
+                elif Linux_Windows.lower() == "lin" and (Driver_Path != "False"):
+                    Driver_Path = Driver_Path + r"/" + "geckodriver"
 
                 #Writing configurations
                 Conf_File = open("Sdarot-Player.conf", "w")
                 Conf_File.write(f"Use MPV = {Use_MPV}\n")
+                Conf_File.write(f"MPV Path = '{MPV_Path}'\n")
+                Conf_File.write(f"Cookies Path = '{Cookies_File_Location}'\n")
+                Conf_File.write(f"Driver Path = '{Driver_Path}'\n")
                 Conf_File.close()
                 print("Config File Created Have a good day")
                 quit()
@@ -76,7 +101,7 @@ def ShowSearch(search_string):
     try:
         r = requests.get(rf"https://sdarot.tv/search?term={search_string}")
     except requests.exceptions.SSLError:
-        print("enterd requests.exceptions.SSLError")
+        #print("enterd requests.exceptions.SSLError")
         if "search" not in str(exc_info()):
             return str(exc_info()[1]).split("/")[2].split("-")[0]
         else:
@@ -313,7 +338,14 @@ while True:
                 #this is for not restarting the web druver in every loop run
             if WebDriverStatus == "Closed":
                 print("opening browser")
-                driver = webdriver.Firefox(options  = fireFoxOptions)
+
+                if Lines[3].split(r"'")[1] == "False":
+                    driver = webdriver.Firefox(options  = fireFoxOptions)
+
+                elif Lines[3].split(r"'")[1] != "False":
+                    DriverPath = Service(Lines[3].split(r"'")[1])
+                    driver = webdriver.Firefox(options  = fireFoxOptions, service=DriverPath)
+
                 WebDriverStatus = "Opened"
             print("opening url")
             driver.get(Url)
