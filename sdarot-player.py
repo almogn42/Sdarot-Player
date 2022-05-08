@@ -316,6 +316,7 @@ if Lines[0].strip() == "Use MPV = True":
 elif Lines[0].strip() != "Use MPV = True":
     fireFoxOptions = webdriver.FirefoxOptions()
 
+
 #WebDriver Status
 WebDriverStatus = "Closed"
 
@@ -340,10 +341,10 @@ while True:
                 print("opening browser")
 
                 if Lines[3].split(r"'")[1] == "False":
-                    driver = webdriver.Firefox(options  = fireFoxOptions)
+                    driver = webdriver.Firefox(options  = fireFoxOptions, service= Service(log_path= ""))
 
                 elif Lines[3].split(r"'")[1] != "False":
-                    DriverPath = Service(Lines[3].split(r"'")[1])
+                    DriverPath = Service(Lines[3].split(r"'")[1], log_path= "")
                     driver = webdriver.Firefox(options  = fireFoxOptions, service=DriverPath)
 
                 WebDriverStatus = "Opened"
