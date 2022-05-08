@@ -312,10 +312,11 @@ except:
 if Lines[0].strip() == "Use MPV = True":
     fireFoxOptions = webdriver.FirefoxOptions()
     fireFoxOptions.headless = True
+    fireFoxOptions.log.level = None
 
 elif Lines[0].strip() != "Use MPV = True":
     fireFoxOptions = webdriver.FirefoxOptions()
-
+    fireFoxOptions.log.level = None
 
 #WebDriver Status
 WebDriverStatus = "Closed"
