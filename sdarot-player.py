@@ -215,9 +215,10 @@ def EpSe_Selector (ShowID,Mode,Season = None):
 
                 else:
                     #validating type and converting\ cleanig the list object to int (for Clean output)
-                    int(Season_Episode_Select)
-                    Season_Episode_Select = list(Season_Episode_Select.strip())
-                    Season_Episode_Select[0] = int(Season_Episode_Select[0])
+                    Temp_Season_Episode_Select = int(Season_Episode_Select.strip())
+                    Season_Episode_Select = [Temp_Season_Episode_Select]
+                    #clearing temp variable from memory
+                    del Temp_Season_Episode_Select
 
             elif Mode == "se":
                 int(Season_Episode_Select)
