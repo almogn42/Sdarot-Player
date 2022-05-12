@@ -66,6 +66,7 @@ def Argument_Parser(arguments):
                 Conf_File.write(f"MPV Path = '{MPV_Path}mpv'\n")
                 Conf_File.write(f"Cookies Path = '{Cookies_File_Location}Sdarot-Player.cookie'\n")
                 Conf_File.write(f"Driver Path = '{Driver_Path}'\n")
+                Conf_File.write(f"OS Type = {Linux_Windows.upper()}\n")
                 Conf_File.close()
                 print("Config File Created Have a good day")
                 quit()
@@ -89,6 +90,7 @@ def Argument_Parser(arguments):
                 Conf_File.write(f"MPV Path = '{MPV_Path}'\n")
                 Conf_File.write(f"Cookies Path = '{Cookies_File_Location}'\n")
                 Conf_File.write(f"Driver Path = '{Driver_Path}'\n")
+                Conf_File.write(f"OS Type = {Linux_Windows.upper()}\n")
                 Conf_File.close()
                 print("Config File Created Have a good day")
                 quit()
@@ -313,12 +315,15 @@ except:
 if Lines[0].strip() == "Use MPV = True":
     fireFoxOptions = webdriver.FirefoxOptions()
     fireFoxOptions.headless = True
-    fireFoxOptions.log.level = None
 
 elif Lines[0].strip() != "Use MPV = True":
     fireFoxOptions = webdriver.FirefoxOptions()
-    fireFoxOptions.log.level = None
 
+#configuring dump log location
+if Lines[4] == "OS Type = WIN\n":
+    Log_Path = "nul"
+elif Lines[4] == "OS Type = LIN\n":
+    Log_Path = "/dev/null"
 #WebDriver Status
 WebDriverStatus = "Closed"
 
@@ -343,10 +348,10 @@ while True:
                 print("opening browser")
 
                 if Lines[3].split(r"'")[1] == "False":
-                    driver = webdriver.Firefox(options  = fireFoxOptions, service= Service(log_path= ""))
+                    driver = webdriver.Firefox(options  = fireFoxOptions, service= Service(log_path= Log_Path))
 
                 elif Lines[3].split(r"'")[1] != "False":
-                    DriverPath = Service(Lines[3].split(r"'")[1], log_path= "")
+                    DriverPath = Service(Lines[3].split(r"'")[1], log_path= Log_Path)
                     driver = webdriver.Firefox(options  = fireFoxOptions, service=DriverPath)
 
                 WebDriverStatus = "Opened"
