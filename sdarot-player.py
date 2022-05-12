@@ -395,7 +395,7 @@ while True:
 
     #for when there is range you need to repeat the episode opening sequendce for each episode in sequence
     elif len(Episode) == 2:
-        for Ep in range(Episode[0], (Episode[1] + 1)):
+        for Ep in range(Episode[0], (int(Episode[1]) + 1)):
             while True:
 
                 #Making the Complete Url
