@@ -232,7 +232,6 @@ def EpSe_Selector (ShowID,Mode,Season = None):
     return Season_Episode_Select
 
 
-
 def MPV_Player_Play(Configuration_File, url ):
     """Function For Playing the video via mpv player Usage: \nMPV_Player_Play(<configuration file as list>, <Video Url> ) \nreturn's void"""
     #cleaning Path's
@@ -295,6 +294,19 @@ def After_Played_Options(episode, show, season):
                 continue
 
 
+def Timer_Bar(Time = 30, Bar_Leangh = 50):
+    """A function to desplay bar by percent of time left \nUsage: Timer_Bar({int}<Time>,{int}<Bar Lengh> )"""
+    for Secound in range(Time + 1):
+
+        #calculating percentage and spaces
+        Progress_Percent = (Secound * 100 // Time)
+        Progress_Leangh = Progress_Percent * Bar_Leangh // 100
+        Progress_Left = Bar_Leangh - Progress_Leangh
+        #displayng
+
+        print(f"\r[{Progress_Leangh * '#'}{Progress_Left * ' '}]{Progress_Percent}%", end="")
+        time.sleep(1)
+    print("")
 
 #Configuration Setup & Creating needed Files
 
@@ -366,7 +378,8 @@ while True:
             print(f"Playing Episode {Episode[0]}")
             try:
                 print("Waiting For Site Timer (30 Secounds)")
-                element = WebDriverWait(driver, 50).until(
+                Timer_Bar()
+                element = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.ID, "videojs_html5_api"))
 
                 )
@@ -423,7 +436,8 @@ while True:
                 print(f"Playing Episode {Ep}")
                 try:
                     print("Waiting For Site Timer (30 Secounds)")
-                    element = WebDriverWait(driver, 50).until(
+                    Timer_Bar()
+                    element = WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located((By.ID, "videojs_html5_api"))
 
                     )
