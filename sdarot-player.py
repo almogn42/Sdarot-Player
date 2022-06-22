@@ -101,7 +101,7 @@ def ShowSearch(search_string):
 #Getting parsable page object
     #getting Url page and if he gets a show page return show ID
     try:
-        r = requests.get(rf"https://sdarot.tv/search?term={search_string}")
+        r = requests.get(rf"https://sdarot.tw/search?term={search_string}")
     except requests.exceptions.SSLError:
         #print("enterd requests.exceptions.SSLError")
         if "search" not in str(exc_info()):
@@ -130,7 +130,7 @@ def ShowSearch(search_string):
         for Show in Search_Results:
             Optinon_Num += 1
             #explantion for the horror below: first () for slicing to the start of ShowID by index secound () for slicing the excess from ShowID by split methood and than selecting from lthe list ShowID
-            Show_ID_List.append(((f"https://www.sdarot.tv{Show.a['href']}")[28:].split("-"))[0])
+            Show_ID_List.append(((f"https://www.sdarot.tw{Show.a['href']}")[28:].split("-"))[0])
             print(f"    {Optinon_Num}.  {Show.h5.string} - {Show.h4.string}")
 
             #Visual new line for beuty
@@ -180,12 +180,12 @@ def EpSe_Selector (ShowID,Mode,Season = None):
 #selecring Season \ Episode
     #managing selection and variables depending on mode
     if Mode == "se":
-        r = requests.get(rf"https://sdarot.tv/watch/{ShowID}")
+        r = requests.get(rf"https://sdarot.tw/watch/{ShowID}")
         List_Type = "Season"
         Data_Attribute_Type = "data-season"
 
     elif Mode == "ep":
-        r = requests.get(rf"https://sdarot.tv/watch/{ShowID}/season/{Season}")
+        r = requests.get(rf"https://sdarot.tw/watch/{ShowID}/season/{Season}")
         List_Type = "Episode"
         Data_Attribute_Type = "data-episode"
 
@@ -353,7 +353,7 @@ while True:
     if len(Episode) == 1:
         while True:
             #Making the Complete Url
-            Url = f"https://sdarot.tv/watch/{Show}/season/{Season}/episode/{Episode[0]}"
+            Url = f"https://sdarot.tw/watch/{Show}/season/{Season}/episode/{Episode[0]}"
             #Running selenium driver to open timer for Episode
                 #this is for not restarting the web druver in every loop run
             if WebDriverStatus == "Closed":
@@ -418,7 +418,7 @@ while True:
             while True:
 
                 #Making the Complete Url
-                Url = f"https://sdarot.tv/watch/{Show}/season/{Season}/episode/{Ep}"
+                Url = f"https://sdarot.tw/watch/{Show}/season/{Season}/episode/{Ep}"
                 #Running selenium driver to open timer for Episode
                     #this is for not restarting the web druver in every loop run
                 if WebDriverStatus == "Closed":
