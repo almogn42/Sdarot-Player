@@ -19,6 +19,9 @@ import time
 def Argument_Parser(arguments):
     """Function for Argument parsing all the parsing is made inside the function pass only the argument list \n\t Usage: Argument_Parser(Arguments)"""
 
+    #sdarot Default wesite link variable
+    Sdarot_Default_Link = r"https://sdarot.tw"
+
     if len(arguments) > 1:
 
         #argument is config
@@ -67,6 +70,7 @@ def Argument_Parser(arguments):
                 Conf_File.write(f"Cookies Path = '{Cookies_File_Location}Sdarot-Player.cookie'\n")
                 Conf_File.write(f"Driver Path = '{Driver_Path}'\n")
                 Conf_File.write(f"OS Type = {Linux_Windows.upper()}\n")
+                Conf_File.write(f"Sdarot Website Link = '{Sdarot_Default_Link}'\n")
                 Conf_File.close()
                 print("Config File Created Have a good day")
                 quit()
@@ -91,6 +95,7 @@ def Argument_Parser(arguments):
                 Conf_File.write(f"Cookies Path = '{Cookies_File_Location}'\n")
                 Conf_File.write(f"Driver Path = '{Driver_Path}'\n")
                 Conf_File.write(f"OS Type = {Linux_Windows.upper()}\n")
+                Conf_File.write(f"Sdarot Website Link = '{Sdarot_Default_Link}'\n")
                 Conf_File.close()
                 print("Config File Created Have a good day")
                 quit()
@@ -101,7 +106,7 @@ def ShowSearch(search_string):
 #Getting parsable page object
     #getting Url page and if he gets a show page return show ID
     try:
-        r = requests.get(rf"https://sdarot.tw/search?term={search_string}")
+        r = requests.get(rf"{Sdarot_Link}/search?term={search_string}")
     except requests.exceptions.SSLError:
         #print("enterd requests.exceptions.SSLError")
         if "search" not in str(exc_info()):
@@ -180,12 +185,12 @@ def EpSe_Selector (ShowID,Mode,Season = None):
 #selecring Season \ Episode
     #managing selection and variables depending on mode
     if Mode == "se":
-        r = requests.get(rf"https://sdarot.tw/watch/{ShowID}")
+        r = requests.get(rf"{Sdarot_Link}/watch/{ShowID}")
         List_Type = "Season"
         Data_Attribute_Type = "data-season"
 
     elif Mode == "ep":
-        r = requests.get(rf"https://sdarot.tw/watch/{ShowID}/season/{Season}")
+        r = requests.get(rf"{Sdarot_Link}/watch/{ShowID}/season/{Season}")
         List_Type = "Episode"
         Data_Attribute_Type = "data-episode"
 
@@ -323,6 +328,9 @@ except:
     print("\t it Seemed there is not a configuration file in this folder \n\t Please run the Program again with --config For the Configuration setup")
     quit()
 
+#reading Sdatrot Link from config file
+Sdarot_Link = Lines[5].split(r"'")[1]
+
 #Configuring headless for WebDriver
 if Lines[0].strip() == "Use MPV = True":
     fireFoxOptions = webdriver.FirefoxOptions()
@@ -353,7 +361,7 @@ while True:
     if len(Episode) == 1:
         while True:
             #Making the Complete Url
-            Url = f"https://sdarot.tw/watch/{Show}/season/{Season}/episode/{Episode[0]}"
+            Url = f"{Sdarot_Link}/watch/{Show}/season/{Season}/episode/{Episode[0]}"
             #Running selenium driver to open timer for Episode
                 #this is for not restarting the web druver in every loop run
             if WebDriverStatus == "Closed":
@@ -418,7 +426,7 @@ while True:
             while True:
 
                 #Making the Complete Url
-                Url = f"https://sdarot.tw/watch/{Show}/season/{Season}/episode/{Ep}"
+                Url = f"{Sdarot_Link}/watch/{Show}/season/{Season}/episode/{Ep}"
                 #Running selenium driver to open timer for Episode
                     #this is for not restarting the web druver in every loop run
                 if WebDriverStatus == "Closed":
